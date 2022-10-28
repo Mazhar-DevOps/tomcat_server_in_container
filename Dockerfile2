@@ -1,0 +1,24 @@
+FROM centos:7
+COPY systemctl.py /usr/bin/systemctl
+EXPOSE 8080
+
+RUN chmod a+x /usr/bin/systemctl \
+    && systemctl --version \
+    && useradd -m -d /opt/tomcat -U -s /bin/false tomcatusr
+
+ADD jdk-19_linux-x64_bin.tar.gz /opt/
+
+ENV JAVA_HOME /opt/jdk-19.0.1
+ENV PATH $JAVA_HOME/bin:$PATH
+RUN java -version
+
+ADD apache-tomcat-8.5.83.tar.gz /opt/tomcat/
+RUN chown -R tomcatusr:tomcatusr /opt/tomcat/*
+
+#COPY tomcat-org.sh /opt/tomcat/
+#WORKDIR /opt/tomcat/
+#RUN chmod 777 tomcat-org.sh \
+#   && sh tomcat-org.sh \
+#    && systemctl daemon-reload \
+#    && systemctl enable tomcat
+CMD ["/opt/tomcat/apache-tomcat-8.5.83/bin/catalina.sh", "run"]
